@@ -13,11 +13,14 @@ constexpr const char* anotatSuffix = "";
 class Logger {
 public:
 	Logger();
+	Logger(const std::string);
 
 	void writeWarning(std::string text);
 	void writeAnotat(std::string text);
+	void setGlobalPrefix(const std::string& prefix);
 
 private:
+	std::string globalPrefix;
 	void writeMessage(const char* prefix, std::string text, const char* suffix);
 
 };

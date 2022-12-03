@@ -1,6 +1,9 @@
 #include "Logger.h"
+#include <format>
 
-Logger::Logger() {};
+Logger::Logger() : globalPrefix("None") {};
+
+Logger::Logger(const std::string prefix) : globalPrefix(prefix) {};
 
 void Logger::writeWarning(std::string text) {
 	writeMessage(warningPrefix, text, warningSuffix);
@@ -11,5 +14,9 @@ void Logger::writeAnotat(std::string text) {
 }
 
 void Logger::writeMessage(const char* prefix, std::string text, const char* suffix) {
-	err_s << prefix << " " << text << " " << suffix << std::endl;
+	err_s << std::format("[{}]\t", globalPrefix) << prefix << " " << text << " " << suffix << std::endl;
+}
+
+void Logger::setGlobalPrefix(const std::string& prefix) {
+	globalPrefix = prefix;
 }

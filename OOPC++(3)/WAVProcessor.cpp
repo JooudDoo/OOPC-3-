@@ -2,10 +2,21 @@
 #include <iostream>
 #include <format>
 
-WAVLoader::WAVLoader() : WAVpath("None"), log(), header(), fileAttached(false), WAVlenght(0), WAVreadedLenght(0) {}
+WAVLoader::WAVLoader() : WAVpath("None"), log("Loader"), header(), fileAttached(false), WAVlenght(0), WAVreadedLenght(0) {}
 
-WAVLoader::WAVLoader(std::string WAVpath) {
+WAVLoader::WAVLoader(std::string WAVpath) : WAVpath("None"), log("Loader"), header(), fileAttached(false), WAVlenght(0), WAVreadedLenght(0) {
 	if (!openWAV(WAVpath)) closeWAV();
+}
+
+WAVLoader::WAVLoader(const WAVLoader& other) {
+	log = other.log;
+	WAVpath = other.WAVpath;
+	header = other.header;
+	fileAttached = other.fileAttached;
+	openWAV(WAVpath);
+	WAV.seekg(const_cast<WAVLoader&>(other).WAV.tellg());
+	WAVreadedLenght = other.WAVreadedLenght;
+	WAVlenght = other.WAVlenght;
 }
 
 WAVLoader::~WAVLoader() {
@@ -41,23 +52,24 @@ bool WAVLoader::readWAVheader() {
 	return true;
 }
 
-byte* WAVLoader::readSecond() {
+byteV WAVLoader::readSecond() {
 	if (!fileAttached) {
 		log.writeWarning("File not attached");
-		return nullptr;
+		return byteV();
 	}
 	uint64_t bytesToRead = 0;
 	if (WAVreadedLenght >= WAVlenght) {
 		log.writeWarning("File ended");
-		return nullptr;
+		return byteV();
 	}
 	if (WAVlenght - WAVreadedLenght < 1) 
 		bytesToRead = (header.bitsPerSample / 8) * (uint64_t)header.numChannels * header.sampleRate * (WAVlenght - WAVreadedLenght);
 	else 
 		bytesToRead = (header.bitsPerSample / 8) * (uint64_t)header.numChannels * header.sampleRate;
-	byte* second = new byte[bytesToRead]; // remember to delete second
-	WAV.read(second, bytesToRead);
-	WAVreadedLenght += bytesToRead / ((double)header.bitsPerSample / 8) * (double)header.numChannels * header.sampleRate;
+	byteV second;
+	second.resize(bytesToRead, 0);
+	WAV.read((char*)second.data(), bytesToRead);
+	WAVreadedLenght += bytesToRead / (((double)header.bitsPerSample / 8) * (double)header.numChannels * header.sampleRate);
 	return second;
 }
 
@@ -81,6 +93,10 @@ WAVHeader WAVLoader::getHeader() const {
 
 double WAVLoader::getWAVlenght() const {
 	return WAVlenght;
+}
+
+bool WAVLoader::fileEnded() const {
+	return WAVreadedLenght == WAVlenght;
 }
 
 bool WAVLoader::openWAV(std::string WAVpath) {
@@ -121,5 +137,80 @@ bool WAVLoader::stringComparsion(const std::string f, const std::string s) const
 		if (f[i] != s[i])
 			return false;
 	}
+	return true;
+}
+
+
+
+WAVunLoader::WAVunLoader() : WAVpath("None"), log("Unloader"), fileAttached(false), headerWrited(false), WAVwritedSeconds(0) {};
+
+WAVunLoader::WAVunLoader(std::string WAVpath) : WAVpath(WAVpath), log("Unloader"), fileAttached(false), headerWrited(false), WAVwritedSeconds(0) {
+	if (!openWAV(WAVpath)) closeWAV();
+}
+
+WAVunLoader::~WAVunLoader() {
+	if (WAV.is_open()) closeWAV();
+}
+
+bool WAVunLoader::openWAV(std::string WAVpath) {
+	if (WAV.is_open()) {
+		log.writeWarning(std::format("Unable to open file \"{}\"", WAVpath));
+		return false;
+	}
+	WAV.open(WAVpath, std::ios::out | std::ios::binary);
+	if (WAV.is_open()) {
+		log.writeAnotat(std::format("File \"{}\" successfully open", WAVpath));
+		fileAttached = true;
+		return fileAttached;
+	}
+	return false;
+}
+
+bool WAVunLoader::closeWAV() {
+	std::string WAVprevPath = WAVpath;
+	WAVunLoader::WAVpath = "None";
+	double WAVwritedSecondsCopy = WAVwritedSeconds;
+	WAVwritedSeconds = 0;
+	fileAttached = false;
+	headerWrited = false;
+	if (WAV.is_open()) {
+		WAV.close();
+		log.writeAnotat(std::format("Writed to file {} seconds", WAVwritedSecondsCopy));
+		log.writeAnotat(std::format("File \"{}\" successfully closed", WAVprevPath));
+		return true;
+	}
+	log.writeAnotat(std::format("Unable to close file \"{}\"", WAVpath));
+	return false;
+}
+
+bool WAVunLoader::WAVisOpen() {
+	return WAV.is_open();
+}
+
+bool WAVunLoader::writeHeader(WAVHeader h) {
+	if (!fileAttached) {
+		log.writeWarning("File not attached. Couldn't write header");
+		return false;
+	}
+	if (headerWrited) {
+		log.writeWarning("Header already writed");
+		return false;
+	}
+	WAV.write((char*)&h, sizeof(WAVHeader));
+	headerWrited = true;
+	return headerWrited;
+}
+
+bool WAVunLoader::writeSecond(byteV sec) {
+	if (!fileAttached) {
+		log.writeWarning("File not attached. Couldn't write header");
+		return false;
+	}
+	if (!headerWrited) {
+		log.writeWarning("Header not writed");
+		return false;
+	}
+	WAV.write((char*)sec.data(), sec.size());
+	WAVwritedSeconds += 1;
 	return true;
 }

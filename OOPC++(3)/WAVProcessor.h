@@ -1,9 +1,11 @@
 #pragma once
 #include <string>
 #include <fstream>
+#include <vector>
 #include "Logger.h"
 
-using byte = char;
+using byte = unsigned char;
+using byteV = std::vector<byte>;
 using char32 = char[4];
 
 #pragma pack(push, 1)
@@ -31,13 +33,15 @@ class WAVLoader {
 public:
 	WAVLoader();
 	WAVLoader(std::string WAVpath);
+	WAVLoader(const WAVLoader&);
 	~WAVLoader();
 	
 	bool openWAV(std::string WAVpath);
 	bool closeWAV();
 	bool WAVisOpen();
+	bool fileEnded() const;
 
-	byte* readSecond();
+	byteV readSecond();
 
 	double getWAVlenght() const;
 	WAVHeader getHeader() const;
@@ -55,4 +59,27 @@ private:
 
 	double WAVreadedLenght;
 	double WAVlenght;
+};
+
+class WAVunLoader {
+public:
+	WAVunLoader();
+	WAVunLoader(std::string WAVpath);
+	~WAVunLoader();
+
+	bool openWAV(std::string WAVpath);
+	bool closeWAV();
+	bool WAVisOpen();
+	bool writeHeader(WAVHeader);
+
+	bool writeSecond(byteV);
+
+private:
+	Logger log;
+	bool fileAttached;
+	bool headerWrited;
+
+	double WAVwritedSeconds;
+	std::string WAVpath;
+	std::ofstream WAV;
 };
