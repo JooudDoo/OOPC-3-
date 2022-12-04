@@ -4,6 +4,9 @@
 #include <vector>
 
 constexpr int ERRORPARAMSEXIT = 10;
+constexpr int ERRORUNKNOWNWORKINGLINECOMMAND = 3;
+constexpr int ERRORMAINFILENOTOPEN = 2;
+constexpr int UNKNOWN_CONVERTER = 1;
 constexpr int INSTRUCTIONFILENOTOPEN = 7;
 
 using byte = unsigned char;
@@ -28,9 +31,11 @@ enum UtilityFuncNames {
 	UNLOAD,
 };
 
+typedef byteV(*converterFunction)(byteV&, double, paramsArr);
+
 typedef struct _CommandTemplate {
 	CommandType type;
-	byteV(*converterFunc)(byteV&, double, paramsArr);
+	converterFunction converter;
 	UtilityFuncNames utilityFunc;
 	std::vector<std::string> funcAliases;
 	std::vector<ParamType> typeParams;
@@ -38,7 +43,7 @@ typedef struct _CommandTemplate {
 
 typedef struct _Command {
 	CommandType type;
-	byteV(*converterFunc)(byteV&, double, paramsArr);
+	converterFunction converter;
 	UtilityFuncNames utilityFunc;
 	paramsArr params;
 	std::vector<ParamType> typeParams;

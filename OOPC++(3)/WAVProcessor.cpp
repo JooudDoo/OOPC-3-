@@ -2,7 +2,7 @@
 #include <iostream>
 #include <format>
 
-WAVLoader::WAVLoader() : WAVpath("None"), log("Loader"), header(), fileAttached(false), WAVlenght(0), WAVreadedLenght(0) {}
+WAVLoader::WAVLoader() : WAVpath("None"), log("Loader"), header(), fileAttached(false), fileEndedInformation(false), WAVlenght(0), WAVreadedLenght(0) {}
 
 WAVLoader::WAVLoader(std::string WAVpath) : WAVpath("None"), log("Loader"), header(), fileAttached(false), WAVlenght(0), WAVreadedLenght(0) {
 	if (!openWAV(WAVpath)) closeWAV();
@@ -58,7 +58,10 @@ byteV WAVLoader::readSecond() {
 	}
 	uint64_t bytesToRead = 0;
 	if (WAVreadedLenght >= WAVlenght) {
-		log.writeWarning("File ended");
+		if (!fileEndedInformation) {
+			log.writeWarning(std::format("File ended [{}]", WAVpath));
+			fileEndedInformation = true;
+		}
 		return byteV();
 	}
 	if (WAVlenght - WAVreadedLenght < 1) 
@@ -116,7 +119,10 @@ bool WAVLoader::openWAV(std::string WAVpath) {
 bool WAVLoader::closeWAV() {
 	std::string WAVprevPath = WAVpath;
 	WAVLoader::WAVpath = "None";
+	WAVreadedLenght = 0;
+	WAVlenght = 0;
 	fileAttached = false;
+	fileEndedInformation = false;
 	header = WAVHeader();
 	if (WAV.is_open()) {
 		WAV.close();
@@ -159,6 +165,7 @@ bool WAVunLoader::openWAV(std::string WAVpath) {
 	WAV.open(WAVpath, std::ios::out | std::ios::binary);
 	if (WAV.is_open()) {
 		log.writeAnotat(std::format("File \"{}\" successfully open", WAVpath));
+		WAVunLoader::WAVpath = WAVpath;
 		fileAttached = true;
 		return fileAttached;
 	}

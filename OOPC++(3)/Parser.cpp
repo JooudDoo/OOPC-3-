@@ -36,7 +36,7 @@ Commands Parser::parseFile(const std::string filePath) {
 		}
 
 		size_t currentIndex = parsedCommands.size();
-		parsedCommands.push_back({ currentTemplate.type, currentTemplate.converterFunc,
+		parsedCommands.push_back({ currentTemplate.type, currentTemplate.converter,
 								   currentTemplate.utilityFunc,
 								   {}, currentTemplate.typeParams });
 		paramsArr* params = &(parsedCommands[currentIndex].params);
@@ -99,12 +99,11 @@ std::string Parser::backReadCommand(const Command& cmd) {
 				break;
 			}
 		}
-
 		break;
 	case(converter):
 		commandData << "Converter ";
 		for (CommandTemplate cmdTemplate : availableCommands) {
-			if (cmdTemplate.converterFunc == cmd.converterFunc) {
+			if (cmdTemplate.converter == cmd.converter) {
 				commandData << cmdTemplate.funcAliases[0];
 				break;
 			}
@@ -119,7 +118,6 @@ std::string Parser::backReadCommand(const Command& cmd) {
 	commandData << "Parameters: ";
 	for (size_t i = 0; i < cmd.typeParams.size(); i++) {
 		if (i != 0) commandData << ", ";
-
 		switch (cmd.typeParams[i]) {
 		case(PATH_T):
 			commandData << *(std::string*)cmd.params[i];
@@ -131,8 +129,6 @@ std::string Parser::backReadCommand(const Command& cmd) {
 			commandData << "unknown";
 			break;
 		}
-
 	}
-	
 	return commandData.str();
 }

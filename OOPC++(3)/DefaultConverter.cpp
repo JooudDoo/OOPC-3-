@@ -3,8 +3,8 @@
 byteV silence(byteV& sec, double position, paramsArr params) {
 	if (params.size() != 2) throw std::exception("Wrong amount of arguments");
 
-	double startConvertParam = *(double*)params[0];
-	double endConvertParam = *(double*)params[1];
+	double startConvertParam = *(int*)params[0];
+	double endConvertParam = *(int*)params[1];
 	if (position >= startConvertParam && position <= endConvertParam) {
 		int a = sec.size();
 		byteV newSec(sec.size(), 0);
@@ -16,7 +16,7 @@ byteV silence(byteV& sec, double position, paramsArr params) {
 byteV mix(byteV& sec, double position, paramsArr params) {
 	if (params.size() != 2) throw std::exception("Wrong amount of arguments");
 
-	double insertPosition = *(double*)params[1];
+	double insertPosition = *(int*)params[1];
 	WAVLoader* otherLoader = (WAVLoader*)params[0];
 
 	if (position >= insertPosition) {
@@ -44,7 +44,7 @@ byteV mix(byteV& sec, double position, paramsArr params) {
 byteV normalMix(byteV& sec, double position, paramsArr params) {
 	if (params.size() != 2) throw std::exception("Wrong amount of arguments");
 
-	double insertPosition = *(double*)params[11];
+	double insertPosition = *(int*)params[1];
 	WAVLoader* otherLoader = (WAVLoader*)params[0];
 
 	if (position >= insertPosition) {

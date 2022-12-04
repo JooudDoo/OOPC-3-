@@ -52,6 +52,7 @@ private:
 
 	WAVHeader header;
 	bool fileAttached;
+	bool fileEndedInformation;
 	std::ifstream WAV;
 
 	double WAVreadedLenght;

@@ -132,6 +132,7 @@
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Parser.cpp" />
+    <ClCompile Include="SoundProcessor.cpp" />
     <ClCompile Include="WAVProcessor.cpp" />
   </ItemGroup>
   <ItemGroup>
