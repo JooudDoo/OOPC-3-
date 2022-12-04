@@ -1,12 +1,9 @@
 #pragma once
+#include "utility.h"
 #include <string>
 #include <fstream>
 #include <vector>
-#include "Logger.h"
 
-using byte = unsigned char;
-using byteV = std::vector<byte>;
-using char32 = char[4];
 
 #pragma pack(push, 1)
 typedef struct _WAVHeader {

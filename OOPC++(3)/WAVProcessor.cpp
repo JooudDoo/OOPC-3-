@@ -28,7 +28,6 @@ bool WAVLoader::readWAVheader() {
 		log.writeWarning("Unable to read header");
 		return false;
 	}
-	//TODO сделать скип всех полей до поля data
 	WAV.read((char*)&header, sizeof(WAVHeader));
  	while (!stringComparsion(header.subchunk2ID, "data")) {
 #pragma pack(push, 1)

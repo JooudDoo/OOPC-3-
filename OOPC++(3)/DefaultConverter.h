@@ -1,9 +1,8 @@
 #pragma once
+#include "utility.h"
 #include "WAVProcessor.h"
 #include<vector>
 #include <stdarg.h>
-
-using paramsArr = std::vector<void*>;
 
 template<int cntArgs, byteV (*func)(byteV&, double, paramsArr)>
 class Converter {
@@ -30,3 +29,5 @@ private:
 byteV silence(byteV& sec, double position, paramsArr params);
 
 byteV mix(byteV& sec, double position, paramsArr params);
+
+byteV normalMix(byteV& sec, double position, paramsArr params);

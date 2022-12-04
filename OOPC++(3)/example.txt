@@ -1,0 +1,6 @@
+load "assets/district_four.wav"
+output "assets/test.wav"
+mute 0 30
+mix "assets/funkorama.wav" 10
+mute 120 180
+normalMix "assets/funkorama.wav" 0
