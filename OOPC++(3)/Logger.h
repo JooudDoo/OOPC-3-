@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <iostream>
+#include <Windows.h>
 
 #define err_s std::cerr
 
@@ -22,5 +23,7 @@ public:
 private:
 	std::string globalPrefix;
 	void writeMessage(const char* prefix, std::string text, const char* suffix);
+	HANDLE outputHandle;
+	WORD colorAtribute;
 
 };

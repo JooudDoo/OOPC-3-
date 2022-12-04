@@ -2,9 +2,10 @@
 #include "DefaultConverter.h"
 #include "Parser.h"
 #include <format>
+#include <stdio.h>
 
 static std::string getMiddleWAVName(const size_t count) {
-	return std::format("trash{}", count);
+	return std::format("Intermediate{}", count);
 }
 
 SoundProcessor::SoundProcessor() : log("SoundProcessor") {};
@@ -95,6 +96,7 @@ void SoundProcessor::evaluateInsructions(const std::string filePath) {
 				for (size_t i = 0; i < mainWAV.getWAVlenght(); i++) {
 					middleWAV.writeSecond(converter.work(mainWAV.readSecond(), cmd.params));
 				}
+				additionFile->closeWAV();
 				middleWAV.closeWAV();
 				mainWAV.closeWAV();
 				mainWAV.openWAV(getMiddleWAVName(countTrash));
@@ -114,6 +116,7 @@ void SoundProcessor::evaluateInsructions(const std::string filePath) {
 				for (size_t i = 0; i < mainWAV.getWAVlenght(); i++) {
 					middleWAV.writeSecond(converter.work(mainWAV.readSecond(), cmd.params));
 				}
+				additionFile->closeWAV();
 				middleWAV.closeWAV();
 				mainWAV.closeWAV();
 				mainWAV.openWAV(getMiddleWAVName(countTrash));
@@ -150,4 +153,13 @@ void SoundProcessor::evaluateInsructions(const std::string filePath) {
 		mainOutputWAV.writeSecond(mainWAV.readSecond());
 	}
 	log.writeAnotat("The recording of the final file is finished");
+	mainOutputWAV.closeWAV();
+	mainWAV.closeWAV();
+
+
+	log.writeAnotat("The removal of intermediate files has begun");
+	for (size_t i = 0; i <= countTrash; i++) {
+		remove(getMiddleWAVName(i).c_str());
+	}
+	log.writeAnotat("Intermediate files have been successfully deleted");
 }
